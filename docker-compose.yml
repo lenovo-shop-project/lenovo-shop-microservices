@@ -1,0 +1,10 @@
+services:
+  auth-service:
+    build:
+      context: ./auth-service
+    container_name: lenovo-auth-service
+    ports:
+      - "8001:8000"
+    env_file:
+      - ./auth-service/.env
+    restart: unless-stopped
