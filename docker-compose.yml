@@ -8,3 +8,25 @@ services:
     env_file:
       - ./auth-service/.env
     restart: unless-stopped
+
+  catalog-service:
+    build:
+      context: ./catalog-service
+    container_name: lenovo-catalog-service
+    ports:
+      - "8002:8000"
+    env_file:
+      - ./catalog-service/.env
+    restart: unless-stopped
+
+  sales-service:
+    build:
+      context: ./sales-service
+    container_name: lenovo-sales-service
+    ports:
+      - "8003:8000"
+    env_file:
+      - ./sales-service/.env
+    depends_on:
+      - catalog-service
+    restart: unless-stopped
