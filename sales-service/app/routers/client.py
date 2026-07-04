@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.security import CurrentUser, UserRole, require_role
@@ -58,6 +58,19 @@ async def create_contact_message(data: ContactMessageCreate, db: AsyncSession = 
 @router.post("/phone-requests", response_model=PhoneRequestResponse, status_code=status.HTTP_201_CREATED)
 async def create_phone_request(data: PhoneRequestCreate, source: Optional[str] = "unknown", db: AsyncSession = Depends(get_db), current_user: CurrentUser = Depends(require_role(UserRole.CLIENT))):
     service = ContactService(db)
+
+    if not data.phone_number.startswith("+380"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Номер телефону повинен починатися з +380."
+        )
+
+    if not data.phone_number[1:].isdigit():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Номер телефону після знаку '+' повинен містити тільки цифри."
+        )
+
     logger.info(f"!!! [LOG] Новая заявка на звонок. Источник: {source}. Номер: {data.phone_number}")
     return await service.create_phone_request(
         data=data,

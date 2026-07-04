@@ -20,10 +20,7 @@ class ContactMessageResponse(BaseModel):
 
 
 class PhoneRequestCreate(BaseModel):
-    phone_number: str = Field(
-        min_length=5,
-        max_length=30,
-    )
+    phone_number: str = Field(min_length=13, max_length=13)
 
 
 class PhoneRequestResponse(BaseModel):
