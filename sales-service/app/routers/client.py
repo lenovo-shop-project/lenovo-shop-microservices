@@ -11,6 +11,10 @@ from app.schemas.contact import (
     PhoneRequestResponse,
 )
 from app.services.contact_service import ContactService
+from typing import Optional
+import logging
+
+logger = logging.getLogger("uvicorn.error")
 
 router = APIRouter(
     prefix="/client",
@@ -52,8 +56,9 @@ async def create_contact_message(data: ContactMessageCreate, db: AsyncSession = 
 
 
 @router.post("/phone-requests", response_model=PhoneRequestResponse, status_code=status.HTTP_201_CREATED)
-async def create_phone_request(data: PhoneRequestCreate, db: AsyncSession = Depends(get_db), current_user: CurrentUser = Depends(require_role(UserRole.CLIENT))):
+async def create_phone_request(data: PhoneRequestCreate, source: Optional[str] = "unknown", db: AsyncSession = Depends(get_db), current_user: CurrentUser = Depends(require_role(UserRole.CLIENT))):
     service = ContactService(db)
+    logger.info(f"!!! [LOG] Новая заявка на звонок. Источник: {source}. Номер: {data.phone_number}")
     return await service.create_phone_request(
         data=data,
         current_user=current_user,
